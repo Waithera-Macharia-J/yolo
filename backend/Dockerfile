@@ -1,28 +1,23 @@
-# Stage 1: Build dependencies
+# STAGE 1: Build
 FROM node:14-alpine AS build
 
 WORKDIR /usr/src/app
 
-# Install dependencies first (for better caching)
 COPY package*.json ./
-RUN npm ci --only=production
 
-# Copy app source code
+RUN npm install --production
+
 COPY . .
 
-# Stage 2: Runtime environment
+# STAGE 2: Runtime
 FROM alpine:3.16.7
+
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
-# Install Node.js runtime only
-RUN apk add --no-cache nodejs
-
-# Copy app files from build stage
 COPY --from=build /usr/src/app /app
 
-# Expose backend port
 EXPOSE 5000
 
-# Run the app
 CMD ["node", "server.js"]
