@@ -1,0 +1,14 @@
+---
+- name: Pull MongoDB image
+  docker_image:
+    name: mongo
+    source: pull
+
+- name: Run MongoDB container
+  docker_container:
+    name: yolo-mongo
+    image: mongo
+    state: started
+    restart_policy: always
+    published_ports:
+      - "27017:27017"
