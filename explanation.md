@@ -221,10 +221,28 @@ curl -X POST http://localhost:5000/api/products \
 Backend: waitheramacharia/yolo-backend
 
 Frontend: waitheramacharia/yolo-client
+ 
+ IP3 Ansible and Vagrant
+ # Explanation of Ansible Setup
 
-📸 Screenshot
+## Overview
+This project uses Ansible to automate the setup of the Yolo e-commerce application on a Vagrant virtual machine.
 
-(Include a screenshot showing your running containers or app UI here.)
+### Roles:
+1. **docker** – installs and configures Docker.
+2. **app** – clones the GitHub repo and starts the containers using Docker Compose.
+
+### Execution Order:
+The playbook runs sequentially:
+1. Docker installation
+2. Application deployment
+
+### Key Ansible Modules:
+- `apt`: for installing packages.
+- `service`: to start/enable Docker.
+- `git`: for cloning the repository.
+- `command`: for running docker-compose.
+- `block` and `rescue`: to handle errors gracefully.
 
 🧑‍💻 Author
 
