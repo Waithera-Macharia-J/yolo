@@ -1,36 +1,59 @@
+version: "3.8"
+
 services:
+  # FRONTEND SERVICE
   yolo-client:
     image: waitheramacharia/yolo-client:v1.0.0
     build: ./client
+    container_name: yolo-client
+    stdin_open: true
+    tty: true
     ports:
-      - "3000:80"
-    depends_on:
+      - "3000:3000"
+    depends_on: 
       - yolo-backend
     networks:
       - app-net
 
+  # BACKEND SERVICE
   yolo-backend:
     image: waitheramacharia/yolo-backend:v1.0.0
     build: ./backend
+    container_name: yolo-backend
+    stdin_open: true
+    tty: true
+    restart: always
     ports:
       - "5000:5000"
-    depends_on:
-      - mongo
+    depends_on: 
+      - app-ip-mongo
+    environment:
+      - MONGODB_URI=mongodb://app-ip-mongo:27017/yolodb
     networks:
       - app-net
 
-  mongo:
-    image: mongo
+  # MONGODB DATABASE SERVICE
+  app-ip-mongo:
+    image: mongo:6.0
+    container_name: app-mongo
     ports:
       - "27017:27017"
-    volumes:
-      - app-mongo-data:/data/db
     networks:
       - app-net
+    volumes:
+      - type: volume
+        source: app-mongo-data
+        target: /data/db
 
+# NETWORK DEFINITION
 networks:
   app-net:
+    name: app-net
     driver: bridge
+    attachable: true
+
+# VOLUME DEFINITION
 
 volumes:
   app-mongo-data:
+    driver: local
