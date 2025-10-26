@@ -1,25 +1,26 @@
 ---
-- name: Install required system packages
+- name: Install required packages
   apt:
-    name:
+    name: 
       - apt-transport-https
       - ca-certificates
       - curl
-      - software-properties-common
+      - gnupg
+      - lsb-release
     state: present
     update_cache: yes
 
-- name: Add Docker GPG key
+- name: Add Docker’s official GPG key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
-- name: Add Docker repository
+- name: Add Docker APT repository
   apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
     state: present
 
-- name: Install Docker
+- name: Install Docker Engine
   apt:
     name:
       - docker-ce
@@ -27,12 +28,6 @@
       - containerd.io
     state: latest
     update_cache: yes
-
-- name: Install Docker Compose (v2)
-  get_url:
-    url: https://github.com/docker/compose/releases/download/v2.22.0/docker-compose-linux-x86_64
-    dest: /usr/local/bin/docker-compose
-    mode: '0755'
 
 - name: Ensure Docker service is running
   service:
