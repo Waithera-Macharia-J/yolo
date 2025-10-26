@@ -1,7 +1,8 @@
 all:
   hosts:
-    myserver:
-      ansible_host: 127.0.0.1
-      ansible_port: 2222
+    yolo-vm:
+      ansible_host: 192.168.56.10
       ansible_user: vagrant
-      ansible_private_key_file: .vagrant/machines/default/virtualbox/private_key
+      ansible_connection: ssh
+      ansible_private_key_file: /home/waithera/development/code/yolo/.vagrant/machines/default/virtualbox/private_key
+

@@ -4,8 +4,7 @@
   become: true
 
   roles:
-    - role: docker          # Installs Docker and Docker Compose
-    - role: mongo           # Sets up MongoDB container
-    - role: backend         # Runs backend container
-    - role: frontend        # Runs frontend container
-
+    - { role: docker, tags: ["docker"] }
+    - { role: mongo, tags: ["mongo"] }
+    - { role: backend, tags: ["backend"] }
+    - { role: frontend, tags: ["frontend"] }
