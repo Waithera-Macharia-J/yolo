@@ -2,13 +2,18 @@
 - name: Pull MongoDB image
   docker_image:
     name: mongo
+    tag: latest
     source: pull
 
 - name: Run MongoDB container
   docker_container:
-    name: yolo-mongo
-    image: mongo
+    name: mongo_db
+    image: mongo:latest
     state: started
     restart_policy: always
     published_ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
