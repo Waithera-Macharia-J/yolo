@@ -1,15 +1,13 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "geerlingguy/ubuntu2004"
   config.vm.hostname = "yolo-vm"
+  config.vm.network "private_network", ip: "192.168.56.10"
 
-  # Forward ports for app and database
-  config.vm.network "forwarded_port", guest: 3000, host: 3000
-  config.vm.network "forwarded_port", guest: 5000, host: 5000
-  config.vm.network "forwarded_port", guest: 27017, host: 27017
+  # ✅ Ensures your host project folder is accessible inside the VM
+  config.vm.synced_folder ".", "/vagrant"
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.name = "yolo-vm"
-    vb.memory = "2048"
-    vb.cpus = 2
+  # Optional: Automatically run Ansible playbook on provision
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ansible/playbook.yml"
   end
 end
