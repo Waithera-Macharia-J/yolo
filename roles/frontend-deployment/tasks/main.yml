@@ -1,0 +1,10 @@
+- name: Run Frontend container
+  docker_container:
+    name: "{{ frontend_container_name }}"
+    image: "{{ frontend_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ frontend_host_port }}:80"
+    networks:
+      - name: "{{ docker_network_name }}"
