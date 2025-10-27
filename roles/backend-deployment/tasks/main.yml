@@ -1,16 +1,17 @@
----
-- name: Pull image from repository
-  docker_image:
-    name: brianbwire/brian-yolo-backend:v1.0.0
-    source: pull
+- name: Wait for MongoDB to be ready
+  wait_for:
+    host: "{{ mongo_host }}"
+    port: "{{ mongo_port }}"
+    delay: 5
+    timeout: 60
 
-- name: Create Node.js Backend Container
+- name: Run Backend container
   docker_container:
-    name: brian-yolo-backend
-    image: brianbwire/brian-yolo-backend:v1.0.0
+    name: "{{ backend_container_name }}"
+    image: "{{ backend_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ backend_port }}:5000"
     networks:
-      - name: app-net
-    ports:
-      - "5000:5000"
-    command: "npm start"
-  become: yes
+      - name: "{{ docker_network_name }}"
