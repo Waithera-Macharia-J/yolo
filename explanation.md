@@ -1,111 +1,133 @@
-# Explanation of Docker Setup and Architecture
+Explanation of YOLO E-commerce Project Setup
+1. Project Overview
 
-## 1. Overview
-This document explains how the YOLO web application was containerized and deployed using Docker.  
-The project consists of **three microservices**:
+The YOLO web application is a full-stack e-commerce platform containerized using Docker and automated with Ansible on a Vagrant virtual machine.
+It consists of three microservices:
 
-1. **Frontend** – a React application.
-2. **Backend** – a Node.js + Express API.
-3. **Database** – MongoDB.
+Frontend – React application (client/)
 
-All services run in containers and communicate through a Docker bridge network.
+Backend – Node.js + Express API (backend/)
 
----
+Database – MongoDB (roles/setup-mongodb/)
 
-## 2. Base Images and Justification
+All services run in isolated Docker containers and communicate over a user-defined Docker network (app-net).
 
-### **Frontend (client)**
-- **Base image:** `node:14-alpine` for building → `nginx:1.25-alpine` for serving.
-- **Why:**  
-  - The Node Alpine image is lightweight and efficient for building React apps.  
-  - Nginx is used for fast, production-grade static file hosting.  
-  - Multi-stage builds minimize image size.
+2. Git Workflow and Project Evolution
 
-### **Backend (server)**
-- **Base image:** `node:14-alpine` for building → `alpine:3.16.7` for running.  
-- **Why:**  
-  - Node 14 is stable and supports all required libraries.  
-  - Using Alpine in the runtime stage ensures a small and secure final image.  
-  - Multi-stage builds separate dependencies from the runtime environment.
+The project was developed in two stages, with clear, descriptive commits showing progression.
 
-### **Database**
-- **Base image:** `mongo` (official image).  
-- **Why:**  
-  - Provides a ready-to-use MongoDB server optimized for Docker.  
-  - Persistent storage is handled through volumes.
+Stage 1: Base Setup & Dockerization
 
----
+809ba30 – Initialize project using Create React App
 
-## 3. Networking
-A user-defined bridge network (`app-net`) allows inter-container communication.  
-All services connect via container names instead of IPs.
+dc0b1c0 – Initial commit with project structure
 
-Example:
-- The backend connects to MongoDB using the hostname `app-ip-mongo`, which resolves automatically within the network.
+2fbaef7 – Add frontend components
 
-**Network configuration snippet:**
-```yaml
-networks:
-  app-net:
-    driver: bridge
-    attachable: true
+0e667db – Backend configuration setup
 
-4. Volumes
+969e526 – Folder structure improvement
 
-A named volume (app-mongo-data) stores MongoDB data persistently.
-Even if the container stops or rebuilds, data remains available.
+be57582 – Add explanation.md to guide project steps
 
-Volume configuration snippet:
+3ba2b8e – Update README.md with user instructions
 
-volumes:
-  app-mongo-data:
-    driver: local
+3040f0d – Finalize Docker setup and documentation
 
-5. Image Tagging and Versioning
+Stage 2: Stage Two Enhancements
 
-Images are tagged for easy version control and pushing to Docker Hub.
+5a93370 – Add MongoDB role and setup container
 
-Examples:
+3e99f62 – Clean up unused Ansible roles and configs
 
-waitheramacharia/yolo-client:v1.0.0
+1ceeea5 → 4f0e39f – Update backend/frontend deployment tasks, Vagrantfile, inventory.yml, and MongoDB healthchecks
 
-waitheramacharia/yolo-backend:v1.0.0
+4864411 – Stage 2 checkpoint for all updates
 
-Using semantic versioning (v1.0.0) helps track future updates.
+This workflow ensures at least 10 descriptive commits per rubric, showing project evolution from initial setup to Stage 2 deployment.
 
-6. Docker Compose
+3. Folder Structure
+yolo/
+├── backend/               # Node.js Express API
+│   ├── Dockerfile
+│   └── server.js
+├── client/                # React frontend
+│   ├── Dockerfile
+│   └── src/
+├── ansible/               # Ansible playbooks
+│   ├── playbook.yml
+│   └── inventory
+├── roles/
+│   ├── docker/            # Installs Docker & configures user
+│   ├── app/               # Clones repo and deploys containers
+│   ├── backend-deployment/
+│   ├── frontend-deployment/
+│   └── setup-mongodb/     # MongoDB container role (Stage 2)
+├── docker-compose.yaml    # Orchestrates all services
+├── explanation.md         # Technical report
+└── README.md              # User guide
 
-The docker-compose.yaml file automates building and running all services together.
+4. Docker Setup and Architecture
+4.1 Base Images
+Service	Base Image	Reason
+Frontend	node:14-alpine → nginx:1.25-alpine	Lightweight build, Nginx for production static files
+Backend	node:14-alpine → alpine:3.16.7	Small runtime, separates build from production
+MongoDB	mongo:5.0	Official image with persistent storage via volumes
+4.2 Networking
 
-Commands used:
+User-defined Docker bridge network (app-net) ensures inter-container communication.
+
+Containers connect using hostnames instead of IPs.
+
+Example: backend connects to MongoDB via app-ip-mongo.
+
+4.3 Volumes
+
+Persistent data stored in app-mongo-data volume ensures data survives container restarts.
+
+4.4 Docker Compose
+
+Commands:
 
 docker compose build
 docker compose up
 
 
-Compose ensures that the backend waits for the database, and the frontend waits for the backend.
+Backend waits for database readiness.
 
-7. Multi-Stage Builds
+Frontend waits for backend availability.
 
-Both frontend and backend Dockerfiles use multi-stage builds:
+Multi-stage builds reduce image size and improve security.
 
-Stage 1: Build (Node)
+5. Ansible & Vagrant
+Roles
 
-Stage 2: Runtime (Alpine/Nginx)
+docker – installs Docker and adds vagrant user to docker group.
 
-This reduces image size and improves security by excluding unnecessary build tools.
+app – clones repository and starts containers via Docker Compose.
 
-8. Testing and Verification
+backend-deployment – configures backend container deployment tasks.
 
-After running docker compose up, the following endpoints can be tested:
+frontend-deployment – configures frontend container deployment tasks.
+
+setup-mongodb – Stage 2 role to run MongoDB container with healthchecks.
+
+Playbook Execution
+vagrant up
+vagrant provision
+
+
+Ensures VM is provisioned, Docker is installed, and containers are deployed.
+
+6. Testing & Verification
+
+After running docker compose up, test:
 
 Frontend: http://localhost:3000
 
 Backend API: http://localhost:5000/api/products
 
-MongoDB: Connected internally via the Docker network.
-
-Test data can be added with:
+Test MongoDB via backend API:
 
 curl -X POST http://localhost:5000/api/products \
   -H "Content-Type: application/json" \
@@ -117,132 +139,29 @@ curl -X POST http://localhost:5000/api/products \
     "category": "demo"
   }'
 
-9. Docker Hub
+7. Docker Hub Images
+Service	Docker Hub
+Frontend	waitheramacharia/yolo-client
 
-Both images were pushed to Docker Hub:
-
-Frontend: https://hub.docker.com/r/waitheramacharia/yolo-client
-
-Backend: https://hub.docker.com/r/waitheramacharia/yolo-backend
-
-10. Challenges and Solutions
+Backend	waitheramacharia/yolo-backend
+8. Challenges & Solutions
 Challenge	Solution
-Port conflicts during build	Stopped old containers before rebuild (docker compose down)
+Port conflicts	Stop old containers (docker compose down)
 npm ci failing	Replaced with npm install --production
-Database not connecting	Used correct internal hostname (app-ip-mongo) instead of localhost
-11. Conclusion
+Database not connecting	Use internal hostname app-ip-mongo instead of localhost
+MongoDB container unhealthy	Added proper healthcheck in Stage 2
+9. Conclusion
 
-This Docker setup provides an efficient, reproducible, and portable environment for the YOLO application.
-Using Docker Compose, the full stack (frontend, backend, and database) runs seamlessly across environments with minimal configuration.
+This project demonstrates a fully containerized, versioned, and automated deployment of the YOLO web app.
+Using Docker, Docker Compose, Ansible, and Vagrant ensures:
 
+Reproducible environments
 
----
+Easy scalability
 
-## 🧾 **`README.md` (for users — how to run the app)**
+Clear separation of services
 
-```markdown
-# 🛍️ YOLO Web Application
-
-YOLO is a simple full-stack web app built with:
-- **Frontend:** React
-- **Backend:** Node.js + Express
-- **Database:** MongoDB  
-Containerized and deployed using **Docker Compose**.
-
----
-
-## 🚀 Features
-- REST API for managing products.
-- React frontend for viewing and adding products.
-- Persistent MongoDB storage.
-- Fully containerized microservices setup.
-
----
-
-## 🏗️ Project Structure
-
-
-yolo/
-├── backend/ # Node.js Express API
-│ ├── Dockerfile
-│ └── server.js
-├── client/ # React frontend
-│ ├── Dockerfile
-│ └── src/
-├── docker-compose.yaml # Multi-service orchestration
-├── explanation.md # Technical report (for grading)
-└── README.md # User guide
-
-
----
-
-## ⚙️ Prerequisites
-- Docker  
-- Docker Compose  
-
----
-
-## 🧩 Setup and Run Instructions
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/<yourusername>/yolo.git
-cd yolo
-
-2. Build Containers
-docker compose build
-
-3. Start the Application
-docker compose up
-
-4. Access the App
-
-Frontend: http://localhost:3000
-
-Backend API: http://localhost:5000/api/products
-
-MongoDB: runs internally at mongodb://app-ip-mongo:27017
-
-🧪 Testing the API
-
-You can test using curl:
-
-curl -X GET http://localhost:5000/api/products
-
-
-Or add a product:
-
-curl -X POST http://localhost:5000/api/products \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Sample","price":20,"quantity":2,"category":"test"}'
-
-🐳 Docker Hub Images
-
-Backend: waitheramacharia/yolo-backend
-
-Frontend: waitheramacharia/yolo-client
- 
- IP3 Ansible and Vagrant
- # Explanation of Ansible Setup
-
-## Overview
-This project uses Ansible to automate the setup of the Yolo e-commerce application on a Vagrant virtual machine.
-
-### Roles:
-1. **docker** – installs and configures Docker.
-2. **app** – clones the GitHub repo and starts the containers using Docker Compose.
-
-### Execution Order:
-The playbook runs sequentially:
-1. Docker installation
-2. Application deployment
-
-### Key Ansible Modules:
-- `apt`: for installing packages.
-- `service`: to start/enable Docker.
-- `git`: for cloning the repository.
-- `command`: for running docker-compose.
-- `block` and `rescue`: to handle errors gracefully.
+Robust project workflow with descriptive commits
 
 🧑‍💻 Author
 
