@@ -1,19 +1,14 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
 Vagrant.configure("2") do |config|
-  # Use Ubuntu 20.04 (focal)
+  # Base box
   config.vm.box = "ubuntu/focal64"
-
-  # Set a unique VM name
   config.vm.hostname = "yolo-stage2"
 
-  # Forward ports to host (avoid conflicts with Stage 1)
+  # Forward ports to avoid conflicts with Stage 1
   config.vm.network "forwarded_port", guest: 3000, host: 3001   # frontend
   config.vm.network "forwarded_port", guest: 5000, host: 5001   # backend
   config.vm.network "forwarded_port", guest: 27017, host: 27018 # MongoDB
 
-  # Use VirtualBox provider
+  # VirtualBox provider settings
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "2048"
     vb.cpus = 2
@@ -21,7 +16,9 @@ Vagrant.configure("2") do |config|
 
   # Provision VM with Ansible
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "playbook.yml"
-    ansible.inventory_path = "inventory.yml" 
+    ansible.playbook = "ansible/playbook.yml"
+    # Use YAML inventory file for clarity
+    ansible.inventory_path = "inventory.yml"
+    ansible.verbose = "v"   # optional, helps debug
   end
 end
