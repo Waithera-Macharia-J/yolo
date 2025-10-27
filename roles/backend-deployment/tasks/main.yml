@@ -1,17 +1,20 @@
 - name: Wait for MongoDB to be ready
   wait_for:
-    host: "{{ mongo_host }}"
-    port: "{{ mongo_port }}"
+    host: 127.0.0.1
+    port: 27017
     delay: 5
-    timeout: 60
+    timeout: 120
+
 
 - name: Run Backend container
-  docker_container:
-    name: "{{ backend_container_name }}"
-    image: "{{ backend_image }}"
+  community.docker.docker_container:
+    name: yolo_backend
+    image: waitheramacharia/yolo-backend:v1.0.0
     state: started
     restart_policy: unless-stopped
-    ports:
-      - "{{ backend_host_port }}:{{ backend_container_port }}"
     networks:
-      - name: "{{ docker_network_name }}"
+      - name: app-net
+    ports:
+      - "5000:5000"
+    env:
+      NODE_ENV: production

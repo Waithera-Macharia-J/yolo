@@ -1,8 +1,18 @@
-- hosts: all
-  become: yes
+---
+- name: Deploy YOLO E-commerce App
+  hosts: all
+  become: true
+  vars_files:
+    - ../vars/main.yml  # Load shared variables for all roles
+
+  pre_tasks:
+    - name: Ensure Docker network exists
+      community.docker.docker_network:
+        name: "{{ docker_network_name }}"  # ✅ Use variable instead of hardcoding
+        state: present
+
   roles:
-    - common
-    - docker
-    - setup-mongodb
-    - backend-deployment
-    - frontend-deployment
+    - role: docker
+    - role: setup-mongodb
+    - role: backend-deployment
+    - role: frontend-deployment

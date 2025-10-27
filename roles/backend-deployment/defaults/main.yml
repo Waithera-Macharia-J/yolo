@@ -1,0 +1,13 @@
+# roles/backend-deployment/defaults/main.yml
+---
+# MongoDB connection
+mongo_host: "test_mongo"    # The container name of MongoDB
+mongo_port: 27017
+
+# Backend container settings
+container_name: "yolo_yolo-backend_1"
+network: "app-network"
+volume: "app-mongo-data/app"
+
+# Backend app port
+app_port: 5000

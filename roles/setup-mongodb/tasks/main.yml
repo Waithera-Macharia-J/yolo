@@ -1,30 +1,16 @@
-- name: Ensure Docker network exists
-  docker_network:
-    name: "{{ mongo_network_name }}"
-    state: present
-
-- name: Ensure MongoDB data volume exists
-  docker_volume:
-    name: "{{ mongo_data_volume }}"
-    state: present
-
 - name: Run MongoDB container
-  docker_container:
-    name: "{{ mongo_container_name }}"
-    image: "{{ mongo_image }}"
+  community.docker.docker_container:
+    name: app_mongo
+    image: mongo:5.0
     state: started
     restart_policy: unless-stopped
-    published_ports:
-      - "{{ mongo_port }}:27017"
     networks:
-      - name: "{{ mongo_network_name }}"
+      - name: app-net
     env:
-      MONGO_INITDB_ROOT_USERNAME: "{{ mongo_root_username }}"
-      MONGO_INITDB_ROOT_PASSWORD: "{{ mongo_root_password }}"
-
-- name: Wait for MongoDB to become healthy
-  wait_for:
-    host: "127.0.0.1"
-    port: "{{ mongo_port }}"
-    delay: 5
-    timeout: 60
+      MONGO_INITDB_ROOT_USERNAME: "{{ mongo_root_user }}"
+      MONGO_INITDB_ROOT_PASSWORD: "{{ mongo_root_pass }}"
+    ports:
+      - "27017:27017"
+    volumes:
+      - app-mongo-data:/data/db
+      - mongo-config:/data/configdb

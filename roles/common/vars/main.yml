@@ -1,0 +1,19 @@
+---
+# Docker network
+docker_network_name: app-net
+
+# MongoDB
+mongo_container_name: app_mongo
+mongo_image: mongo:5.0
+mongo_port: 27017
+mongo_data_volume: app-mongo-data
+
+# Backend
+backend_container_name: yolo_backend
+backend_image: waitheramacharia/yolo-backend:v1.0.0
+backend_port: 5000
+
+# Frontend
+frontend_container_name: yolo_client
+frontend_image: waitheramacharia/yolo-client:v1.0.0
+frontend_port: 8080

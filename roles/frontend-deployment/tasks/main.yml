@@ -1,17 +1,26 @@
 - name: Wait for Backend to be ready
   wait_for:
-    host: "{{ backend_container_name }}"
-    port: "{{ backend_container_port }}"
+    host: 127.0.0.1
+    port: 5000
     delay: 5
-    timeout: 60
+    timeout: 120
+
+- name: Build frontend Docker image inside VM
+  community.docker.docker_image:
+    name: waitheramacharia/yolo-frontend
+    tag: v1.0.0
+    build:
+      path: /vagrant/client   # Make sure this is the exact path to the folder containing Dockerfile
+    state: present
+
 
 - name: Run Frontend container
-  docker_container:
-    name: "{{ frontend_container_name }}"
-    image: "{{ frontend_image }}"
+  community.docker.docker_container:
+    name: yolo_frontend
+    image: waitheramacharia/yolo-frontend:v1.0.0
     state: started
     restart_policy: unless-stopped
-    ports: 
-      - "{{ frontend_host_port }}:{{ frontend_port }}"  # maps container port to host
     networks:
-      - name: "{{ docker_network_name }}"
+      - name: app-net
+    ports:
+      - "3000:3000"

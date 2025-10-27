@@ -6,3 +6,5 @@ mongo_port: 27017       # Container port
 mongo_host_port: 27018  # Host port to avoid conflicts
 mongo_root_username: waitheramacharia
 mongo_root_password: waitheramacharia
+mongo_user: admin
+mongo_password: pass
