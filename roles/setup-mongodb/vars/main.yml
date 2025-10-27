@@ -1,4 +1,8 @@
----
 mongo_container_name: app_mongo
-mongo_network: app-network
+mongo_network_name: app-net
 mongo_volume: app-mongo-data
+mongo_image: mongo:latest
+mongo_port: 27017       # Container port
+mongo_host_port: 27018  # Host port to avoid conflicts
+mongo_root_username: waitheramacharia
+mongo_root_password: waitheramacharia
