@@ -1,43 +1,30 @@
----
-# Run MongoDB container
+- name: Ensure Docker network exists
+  docker_network:
+    name: "{{ mongo_network_name }}"
+    state: present
+
+- name: Ensure MongoDB data volume exists
+  docker_volume:
+    name: "{{ mongo_data_volume }}"
+    state: present
+
 - name: Run MongoDB container
-  community.docker.docker_container:
+  docker_container:
     name: "{{ mongo_container_name }}"
     image: "{{ mongo_image }}"
     state: started
     restart_policy: unless-stopped
-    networks:
-      - name: "{{ docker_network_name }}"
-    volumes:
-      - "{{ mongo_volume }}:/data/db"
     published_ports:
       - "{{ mongo_port }}:27017"
-    healthcheck:
-      test: ["CMD-SHELL", "mongo --eval 'db.adminCommand(\"ping\")' || exit 1"]
-      interval: 5s
-      retries: 20
-      start_period: 5s
-      timeout: 5s
-  register: mongo_container
+    networks:
+      - name: "{{ mongo_network_name }}"
+    env:
+      MONGO_INITDB_ROOT_USERNAME: "{{ mongo_root_username }}"
+      MONGO_INITDB_ROOT_PASSWORD: "{{ mongo_root_password }}"
 
-# Wait until MongoDB container info is available
-- name: Get MongoDB container info
-  community.docker.docker_container_info:
-    name: "{{ mongo_container_name }}"
-  register: mongo_info
-  retries: 20
-  delay: 5
-  until: mongo_info.containers is defined and mongo_info.containers | length > 0
-
-# Wait until MongoDB container is healthy
-- name: Wait until MongoDB container is healthy
-  community.docker.docker_container_info:
-    name: "{{ mongo_container_name }}"
-  register: mongo_info
-  retries: 20
-  delay: 5
-  until: mongo_info.containers is defined
-         and mongo_info.containers | length > 0
-         and mongo_info.containers[0].State is defined
-         and mongo_info.containers[0].State.Health is defined
-         and mongo_info.containers[0].State.Health.Status == "healthy"
+- name: Wait for MongoDB to become healthy
+  wait_for:
+    host: "127.0.0.1"
+    port: "{{ mongo_port }}"
+    delay: 5
+    timeout: 60
