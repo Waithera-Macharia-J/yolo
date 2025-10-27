@@ -1,0 +1,23 @@
+---
+- block:
+    - name: Clone the repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+      tags: clone
+
+    - name: Build and start containers
+      command: docker-compose up -d
+      args:
+        chdir: "{{ app_dir }}"
+      tags: run
+
+  rescue:
+    - name: Print error message
+      debug:
+        msg: "Something went wrong while deploying the app."
+  always:
+    - name: Print completion message
+      debug:
+        msg: "Deployment complete!"
