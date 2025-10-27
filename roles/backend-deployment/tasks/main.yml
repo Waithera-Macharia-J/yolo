@@ -11,7 +11,7 @@
     image: "{{ backend_image }}"
     state: started
     restart_policy: unless-stopped
-    published_ports:
-      - "{{ backend_port }}:5000"
+    ports:
+      - "{{ backend_host_port }}:{{ backend_container_port }}"
     networks:
       - name: "{{ docker_network_name }}"
