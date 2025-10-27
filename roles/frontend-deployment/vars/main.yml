@@ -1,0 +1,9 @@
+frontend_container_name: yolo_yolo-frontend
+frontend_image: waitheramacharia/yolo-frontend:v1.0.0
+frontend_port: 3000          # container port
+frontend_host_port: 3000     # host port, optional if needed
+
+docker_network_name: app-net
+
+backend_container_name: yolo_yolo-backend
+backend_container_port: 5000  # internal port of backend container
