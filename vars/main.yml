@@ -6,8 +6,8 @@ mongo_image: mongo:5.0
 mongo_container_name: app_mongo
 mongo_port: 27017
 mongo_volume: app-mongo-data
-mongo_network: yolo-network
-
+mongo_root_username: admin       # Add root username for initialization
+mongo_root_password: pass        # Add root password for initialization
 
 # Backend
 backend_image: waitheramacharia/yolo-backend:v1.0.0
