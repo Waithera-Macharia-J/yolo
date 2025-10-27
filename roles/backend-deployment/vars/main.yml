@@ -1,4 +1,8 @@
----
-container_name: brian-yolo-backend
-network: app-net
-volume: app-mongo-data/app
+backend_container_name: yolo_backend
+backend_image: waitheramacharia/yolo-backend:v1.0.0
+backend_container_port: 5000   # Inside container
+backend_host_port: 5001        # Exposed on VM host (different from Vagrant host port)
+docker_network_name: app-net
+
+mongo_host: 127.0.0.1          # For wait_for from VM
+mongo_port: 27017
