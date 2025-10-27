@@ -1,10 +1,17 @@
+- name: Wait for Backend to be ready
+  wait_for:
+    host: "{{ backend_container_name }}"
+    port: "{{ backend_container_port }}"
+    delay: 5
+    timeout: 60
+
 - name: Run Frontend container
   docker_container:
     name: "{{ frontend_container_name }}"
     image: "{{ frontend_image }}"
     state: started
     restart_policy: unless-stopped
-    published_ports:
-      - "{{ frontend_host_port }}:80"
+    ports: 
+      - "{{ frontend_host_port }}:{{ frontend_port }}"  # maps container port to host
     networks:
       - name: "{{ docker_network_name }}"
