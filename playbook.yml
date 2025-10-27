@@ -1,9 +1,28 @@
----
-- name: Ansible playbook to dockerize and run yolo e-commerce app using ansible
-  hosts: all
-  become: true
-  roles: 
-    - frontend-deployment
-    - setup-mongodb   
-    - backend-deployment
-    
+- name: Stage 2 - Deploy YOLO E-commerce App
+  hosts: default
+  become: yes
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+
+    - name: Ensure Docker is installed
+      import_role:
+        name: docker
+
+    - name: Create Docker network
+      docker_network:
+        name: "{{ docker_network_name }}"
+        state: present
+
+    - name: Deploy MongoDB container
+      import_role:
+        name: setup-mongodb
+
+    - name: Deploy Backend container
+      import_role:
+        name: backend-deployment
+
+    - name: Deploy Frontend container
+      import_role:
+        name: frontend-deployment
