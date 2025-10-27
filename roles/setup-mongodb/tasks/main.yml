@@ -1,14 +1,43 @@
 ---
-- name: Run MongoDB Container
-  docker_container:
-    name: app-mongo
-    image: mongo
-    ports:
-      - '27017:27017'
-    volumes:
-      - ./app-mongo-data:/data/db
+# Run MongoDB container
+- name: Run MongoDB container
+  community.docker.docker_container:
+    name: "{{ mongo_container_name }}"
+    image: "{{ mongo_image }}"
+    state: started
+    restart_policy: unless-stopped
     networks:
-      - name: app-net
-  tags:
-    - database
-    - backend
+      - name: "{{ docker_network_name }}"
+    volumes:
+      - "{{ mongo_volume }}:/data/db"
+    published_ports:
+      - "{{ mongo_port }}:27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --eval 'db.adminCommand(\"ping\")' || exit 1"]
+      interval: 5s
+      retries: 20
+      start_period: 5s
+      timeout: 5s
+  register: mongo_container
+
+# Wait until MongoDB container info is available
+- name: Get MongoDB container info
+  community.docker.docker_container_info:
+    name: "{{ mongo_container_name }}"
+  register: mongo_info
+  retries: 20
+  delay: 5
+  until: mongo_info.containers is defined and mongo_info.containers | length > 0
+
+# Wait until MongoDB container is healthy
+- name: Wait until MongoDB container is healthy
+  community.docker.docker_container_info:
+    name: "{{ mongo_container_name }}"
+  register: mongo_info
+  retries: 20
+  delay: 5
+  until: mongo_info.containers is defined
+         and mongo_info.containers | length > 0
+         and mongo_info.containers[0].State is defined
+         and mongo_info.containers[0].State.Health is defined
+         and mongo_info.containers[0].State.Health.Status == "healthy"
