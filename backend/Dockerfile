@@ -1,23 +1,23 @@
-# STAGE 1: Build
-FROM node:14-alpine AS build
+# Build stage
+FROM node:18-alpine AS build
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install --production
+RUN npm ci --omit=dev
 
 COPY . .
 
-# STAGE 2: Runtime
+# Production stage
 FROM alpine:3.16.7
 
 RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
-COPY --from=build /usr/src/app /app
+COPY --from=build /usr/src/app .
 
-EXPOSE 5000
+EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
