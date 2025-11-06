@@ -12,11 +12,23 @@ spec:
       labels:
         app: yolo-backend
     spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z mongo 27017; do
+                echo "Waiting for MongoDB..."
+                sleep 2
+              done
       containers:
         - name: yolo-backend
-          image: waitheramacharia/yolo-backend:v1.0.0
-          env:
-            - name: MONGO_URL
-              value: mongodb://mongo:27017/yolo
+          image: yolo-backend:latest       # Use the local Minikube image
+          imagePullPolicy: Never           # Prevent Kubernetes from trying to pull from Docker Hub
           ports:
             - containerPort: 5000
+          env:
+            - name: MONGO_URL
+              value: "mongodb://mongo:27017/your-db"
