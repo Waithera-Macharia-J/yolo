@@ -39,7 +39,12 @@ app.use(upload.array());
 // Enable CORS
 app.use(cors());
 
-// Use Route
+// Root route for testing
+app.get('/', (req, res) => {
+  res.send('✅ YOLO Backend is running!');
+});
+
+// Use API Route
 app.use('/api/products', productRoute);
 
 // Define the PORT
