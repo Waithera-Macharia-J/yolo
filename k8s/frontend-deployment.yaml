@@ -14,6 +14,10 @@ spec:
     spec:
       containers:
         - name: yolo-frontend
-          image: waitheramacharia/yolo-frontend:v1.0.0
+          image: yolo-frontend:latest       # Use the local image
+          imagePullPolicy: Never            # Don’t pull from Docker Hub
           ports:
-            - containerPort: 80
+            - containerPort: 3000           # Frontend container port
+          env:
+            - name: REACT_APP_BACKEND_URL
+              value: "http://192.168.49.2:30606"  # Replace with your Minikube IP + NodePort
