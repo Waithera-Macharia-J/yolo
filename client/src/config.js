@@ -1,10 +1,7 @@
-// client/src/config.js
-
-// Detect environment: local development or production (Kubernetes)
 const isLocal = window.location.hostname === 'localhost';
 
 const BACKEND_URL = isLocal
-  ? 'http://localhost:5000'    // Local development
-  : 'http://yolo-backend:5000'; // Kubernetes cluster service
+  ? 'http://localhost:5000'             // Local development
+  : 'http://192.168.49.2:30606';       // Minikube NodePort for backend
 
 export default BACKEND_URL;
