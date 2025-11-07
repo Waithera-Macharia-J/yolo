@@ -3,11 +3,11 @@ kind: StatefulSet
 metadata:
   name: mongo
 spec:
-  serviceName: "mongo"
-  replicas: 1
   selector:
     matchLabels:
       app: mongo
+  serviceName: "mongo"
+  replicas: 1
   template:
     metadata:
       labels:
@@ -19,19 +19,11 @@ spec:
         ports:
         - containerPort: 27017
         volumeMounts:
-        - name: mongo-data
+        - name: mongo-storage
           mountPath: /data/db
-        readinessProbe:
-          exec:
-            command:
-            - mongo
-            - --eval
-            - "db.adminCommand('ping')"
-          initialDelaySeconds: 5
-          periodSeconds: 5
   volumeClaimTemplates:
   - metadata:
-      name: mongo-data
+      name: mongo-storage
     spec:
       accessModes: ["ReadWriteOnce"]
       resources:
