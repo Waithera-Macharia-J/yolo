@@ -25,8 +25,8 @@ spec:
               done
       containers:
         - name: yolo-backend
-          image: yolo-backend:latest       # Use the local Minikube image
-          imagePullPolicy: Never           # Prevent Kubernetes from trying to pull from Docker Hub
+          image: waitheramacharia/yolo-backend:v2  # Docker Hub image
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
