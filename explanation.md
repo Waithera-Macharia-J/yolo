@@ -1,97 +1,117 @@
-YOLO E-Commerce Platform — Technical Explanation
-1️⃣ Project Overview
+## 1️⃣ Project Overview
 
 The YOLO E-Commerce Platform is a full-stack, containerized microservices application demonstrating the complete DevOps lifecycle — from containerization to orchestration using modern tools.
 
-Component	Technology
-Frontend	React (served via NGINX)
-Backend	Node.js + Express REST API
-Database	MongoDB (with persistent volume claim)
-Deployment Tool	Purpose
-Docker	Package microservices into images
-Docker Hub	Image registry for distribution
-Kubernetes	Deployment, scaling, and networking
-Ansible + Vagrant	Automate provisioning and configuration
-2️⃣ Git Workflow and Project Evolution
+| Component | Technology |
+|-----------|------------|
+| Frontend  | React (served via NGINX) |
+| Backend   | Node.js + Express REST API |
+| Database  | MongoDB (with persistent volume claim) |
+
+| Deployment Tool | Purpose |
+|-----------------|--------|
+| Docker           | Package microservices into images |
+| Docker Hub       | Image registry for distribution |
+| Kubernetes       | Deployment, scaling, and networking |
+| Ansible + Vagrant | Automate provisioning and configuration |
+
+---
+
+## 2️⃣ Git Workflow and Project Evolution
 
 A structured, incremental Git workflow was followed — over 10 descriptive commits tracking all development stages.
 
-Stage	Key Commits	Description
-Stage 1 — Dockerization	809ba30, 0e667db, 3040f0d, be57582	Initialized React frontend, Node backend, Docker Compose stack
-Stage 2 — Automation (Ansible + Vagrant)	5a93370, 4864411	Added Ansible roles for Docker and MongoDB setup
-Stage 3 — Kubernetes Deployment	302baa1, 40a148e, 144f883, 5efe289, 31f84ef	Added StatefulSet, Deployments, LoadBalancer, and image references
+| Stage | Key Commits | Description |
+|-------|-------------|------------|
+| Stage 1 — Dockerization | 809ba30, 0e667db, 3040f0d, be57582 | Initialized React frontend, Node backend, Docker Compose stack |
+| Stage 2 — Automation (Ansible + Vagrant) | 5a93370, 4864411 | Added Ansible roles for Docker and MongoDB setup |
+| Stage 3 — Kubernetes Deployment | 302baa1, 40a148e, 144f883, 5efe289, 31f84ef | Added StatefulSet, Deployments, LoadBalancer, and Docker Hub image references |
 
-✅ Meets rubric for version control and descriptive commit workflow.
+✅ Demonstrates proper version control and descriptive commit workflow.
 
-3️⃣ Final Folder Structure
+---
+
+## 3️⃣ Final Folder Structure
+
 yolo/
-├── backend/                # Node backend API + Dockerfile
-├── client/                 # React frontend + Dockerfile
-├── k8s/                    # Kubernetes manifests (Stage 3)
-│   ├── backend-deployment.yaml
-│   ├── backend-service.yaml
-│   ├── frontend-deployment.yaml
-│   ├── frontend-service.yaml
-│   ├── mongo-statefulset.yaml
-│   ├── mongo-pvc.yaml
-│   └── mongo-service.yaml
-├── ansible/                # Playbooks, inventories, roles
+├── backend/ # Node backend API + Dockerfile
+├── client/ # React frontend + Dockerfile
+├── k8s/ # Kubernetes manifests (Stage 3)
+│ ├── backend-deployment.yaml
+│ ├── backend-service.yaml
+│ ├── frontend-deployment.yaml
+│ ├── frontend-service.yaml
+│ ├── mongo-statefulset.yaml
+│ ├── mongo-pvc.yaml
+│ └── mongo-service.yaml
+├── ansible/ # Playbooks, inventories, roles
 ├── docker-compose.yml
 ├── README.md
 └── explanation.md
 
-4️⃣ Architecture Diagrams
-Stage 1 — Docker Compose (Local Deployment)
-+--------------+        +----------------+        +---------------------+
-|  Frontend    | <----> |   Backend API  | <----> | MongoDB (container) |
-| React + NGINX|        | Node.js        |        | Persistent Volume   |
-+--------------+        +----------------+        +---------------------+
-           Docker Internal Network (app-net)
+yaml
+Copy code
 
-Stage 3 — Kubernetes (Cloud-Ready / GKE Deployment)
+---
+
+## 4️⃣ Architecture Diagrams
+
+**Stage 1 — Docker Compose (Local Deployment)**
+
++--------------+ +----------------+ +---------------------+
+| Frontend | <----> | Backend API | <----> | MongoDB (container) |
+| React + NGINX| | Node.js | | Persistent Volume |
++--------------+ +----------------+ +---------------------+
+Docker Internal Network (app-net)
+
+markdown
+Copy code
+
+**Stage 3 — Kubernetes (Azure AKS / Cloud-Ready Deployment)**
+
 ┌──────────────────────────────┐
-│      Kubernetes Cluster       │
-│                               │
-│   +----------------------+    │
-│   | Frontend Deployment  |    │
-│   +----------┬-----------+    │
-│              │ LoadBalancer   │
-│   +----------▼-----------+    │
-│   | Frontend Service     |    │
-│   +----------------------+    │
-│              │ Internal DNS   │
-│   +----------▼-----------+    │
-│   | Backend Deployment   |    │
-│   +----------┬-----------+    │
-│              │ ClusterIP       │
-│   +----------▼-----------+    │
-│   | MongoDB StatefulSet  |    │
-│   | Mongo PVC (Storage)  |    │
-│   +----------------------+    │
+│ Kubernetes Cluster │
+│ │
+│ +----------------------+ │
+│ | Frontend Deployment | │
+│ +----------┬-----------+ │
+│ │ LoadBalancer │
+│ +----------▼-----------+ │
+│ | Frontend Service | │
+│ +----------------------+ │
+│ │ Internal DNS │
+│ +----------▼-----------+ │
+│ | Backend Deployment | │
+│ +----------┬-----------+ │
+│ │ ClusterIP │
+│ +----------▼-----------+ │
+│ | MongoDB StatefulSet | │
+│ | Mongo PVC (Storage) | │
+│ +----------------------+ │
 └──────────────────────────────┘
 
+yaml
+Copy code
 
-✅ Uses best Kubernetes practices:
+✅ Best practices:
 
-StatefulSet + PVC for MongoDB persistence
+- StatefulSet + PVC for MongoDB persistence  
+- Deployments for backend and frontend  
+- Services for internal/external networking  
+- LoadBalancer for public access
 
-Deployments for backend and frontend
+---
 
-Services for internal/external networking
+## 5️⃣ Dockerization Strategy
 
-LoadBalancer for public access
+- Multi-stage builds reduce image size and separate build/runtime environments.  
+- Environment variables injected via `.env` for portability.  
+- Docker Compose orchestrates frontend, backend, and MongoDB containers locally.  
+- Network bridge ensures inter-container communication (mongo hostname).
 
-5️⃣ Dockerization Strategy
+**Example: Backend Dockerfile**
 
-Multi-stage builds reduce image size and separate build/runtime environments.
-
-Environment variables injected via .env for portability.
-
-Docker Compose orchestrates frontend, backend, and MongoDB containers locally.
-
-Network bridge ensures inter-container communication (mongo hostname).
-
-Example: Backend Dockerfile
+```dockerfile
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
@@ -99,20 +119,20 @@ RUN npm install
 COPY . .
 EXPOSE 5000
 CMD ["npm", "start"]
-
 6️⃣ Docker Hub Workflow
 Service	Docker Hub Image
-Backend	waitheramacharia/yolo-backend:v1.0.0
-Frontend	waitheramacharia/yolo-frontend:v1.0.0
+Backend	waitheramacharia/yolo-backend:v2
+Frontend	waitheramacharia/yolo-frontend:v2
 
 Commands used:
 
-docker build -t waitheramacharia/yolo-backend:v1.0.0 ./backend
-docker push waitheramacharia/yolo-backend:v1.0.0
-docker build -t waitheramacharia/yolo-frontend:v1.0.0 ./client
-docker push waitheramacharia/yolo-frontend:v1.0.0
+bash
+Copy code
+docker build -t waitheramacharia/yolo-backend:v2 ./backend
+docker push waitheramacharia/yolo-backend:v2
 
-
+docker build -t waitheramacharia/yolo-frontend:v2 ./client
+docker push waitheramacharia/yolo-frontend:v2
 ✅ Demonstrates CI/CD-ready workflow for container registry integration.
 
 7️⃣ Kubernetes Deployment (Stage 3)
@@ -125,18 +145,36 @@ Frontend	Deployment + LoadBalancer	Exposes application externally
 ✅ PVC ensures MongoDB data persists across pod restarts.
 ✅ Deployments reference Docker Hub images.
 
-8️⃣ Ansible + Vagrant Automation (Stage 2)
+Azure AKS Deployment Steps:
 
+bash
+Copy code
+# Connect to AKS cluster
+az aks get-credentials --resource-group yolo-rg --name yolo-aks
+
+# Apply Kubernetes manifests
+kubectl apply -f k8s/
+
+# Verify pods
+kubectl get pods
+
+# Check services and external IPs
+kubectl get svc
+
+# Test backend
+curl http://<backend-loadbalancer-ip>:5000/
+
+# Test frontend in browser
+http://<frontend-loadbalancer-ip>/
+8️⃣ Ansible + Vagrant Automation (Stage 2)
 Automation Flow:
 
+text
+Copy code
 vagrant up → creates Ubuntu VM
-
-ansible-playbook installs Docker & dependencies
-
+ansible-playbook → installs Docker & dependencies
 Pulls images from Docker Hub
-
 Launches containers automatically
-
 Task	Result
 Install Docker	VM ready for containerization
 Setup MongoDB	Persistent data layer configured
@@ -146,27 +184,29 @@ Run Application	App auto-starts on VM boot
 
 9️⃣ Testing & Validation
 API Endpoints
+
+bash
+Copy code
 # Fetch all products
-curl http://localhost:5000/api/products
+curl http://<backend-loadbalancer-ip>:5000/api/products
 
 # Create a product
-curl -X POST http://localhost:5000/api/products \
+curl -X POST http://<backend-loadbalancer-ip>:5000/api/products \
   -H "Content-Type: application/json" \
   -d '{"name":"Sample","price":20,"quantity":2,"category":"test"}'
-
-
 Expected Output:
 
+json
+Copy code
 [{"_id":"...","name":"Sample","price":20,"quantity":2,"category":"test"}]
-
 🔧 Key Challenges and Solutions
 Challenge	Resolution
 MongoDB pod kept restarting	Added PVC and StatefulSet
 Backend couldn’t reach DB	Updated service DNS → mongo-service
 Large image size	Implemented multi-stage builds
 Manual setup errors	Automated provisioning with Ansible
-✅ Conclusion
 
+✅ Conclusion
 This project demonstrates a complete DevOps pipeline covering:
 
 🐳 Containerization (Docker + Docker Compose)
@@ -191,10 +231,12 @@ Persistent and scalable design
 
 Clear documentation
 
-👩‍💻 Author:
+👩‍💻 Author
 Waithera Macharia
 📧 joycemacharia02@gmail.com
 
 🐙 GitHub: @waitheramacharia
-
 🐳 Docker Hub: waitheramacharia
+
+yaml
+Copy code
